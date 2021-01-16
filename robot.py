@@ -13,12 +13,12 @@ from automations.alignment import (
     CargoDepositAligner,
 )
 from automations.cargo import CargoManager
-from automations.climb import ClimbAutomation
+# from automations.climb import ClimbAutomation
 from automations.hatch import HatchAutomation
 from components.cargo import CargoManipulator
 from components.hatch import Hatch
 from components.vision import Vision
-from components.climb import Climber
+# from components.climb import Climber
 from pyswervedrive.chassis import SwerveChassis
 from pyswervedrive.module import SwerveModule
 from utilities.functions import constrain_angle, rescale_js
@@ -43,21 +43,21 @@ class Robot(magicbot.MagicRobot):
     # any higher-level components (automations) that depend on them.
 
     # Automations
-    cargo: CargoManager
-    cargo_deposit: CargoDepositAligner
-    climb_automation: ClimbAutomation
-    hatch_deposit: HatchDepositAligner
-    hatch_intake: HatchIntakeAligner
-    hatch_automation: HatchAutomation
+    # cargo: CargoManager
+    # cargo_deposit: CargoDepositAligner
+    # climb_automation: ClimbAutomation
+    # hatch_deposit: HatchDepositAligner
+    # hatch_intake: HatchIntakeAligner
+    # hatch_automation: HatchAutomation
 
     # Actuators
-    cargo_component: CargoManipulator
+    # cargo_component: CargoManipulator
     chassis: SwerveChassis
-    hatch: Hatch
+    # hatch: Hatch
 
-    climber: Climber
+    # climber: Climber
 
-    vision: Vision
+    # vision: Vision
 
     offset_rotation_rate = 20
 
@@ -69,55 +69,56 @@ class Robot(magicbot.MagicRobot):
         y_dist = 0.2665
         self.module_a = SwerveModule(  # front left module
             "a",
-            steer_talon=ctre.TalonSRX(3),
-            drive_talon=ctre.TalonSRX(4),
+            steer_talon=ctre.TalonSRX(7),
+            drive_talon=ctre.TalonSRX(8),
             x_pos=x_dist,
             y_pos=y_dist,
         )
-        self.module_b = SwerveModule(  # front right module
-            "b",
-            steer_talon=ctre.TalonSRX(7),
-            drive_talon=ctre.TalonSRX(8),
-            x_pos=-x_dist,
-            y_pos=y_dist,
-        )
-        self.module_c = SwerveModule(  # bottom left module
-            "c",
-            steer_talon=ctre.TalonSRX(1),
-            drive_talon=ctre.TalonSRX(6),
-            x_pos=-x_dist,
-            y_pos=-y_dist,
-        )
+        # self.module_b = SwerveModule(  # front right module
+        #     "b",
+        #     steer_talon=ctre.TalonSRX(7),
+        #     drive_talon=ctre.TalonSRX(8),
+        #     x_pos=-x_dist,
+        #     y_pos=y_dist,
+        # )
+        # self.module_c = SwerveModule(  # bottom left module
+        #     "c",
+        #     steer_talon=ctre.TalonSRX(1),
+        #     drive_talon=ctre.TalonSRX(6),
+        #     x_pos=-x_dist,
+        #     y_pos=-y_dist,
+        # )
         self.module_d = SwerveModule(  # bottom right module
             "d",
             steer_talon=ctre.TalonSRX(23),
             drive_talon=ctre.TalonSRX(24),
-            x_pos=x_dist,
+            x_pos=-x_dist,
             y_pos=-y_dist,
+            # someone fucked the connector wiring
         )
         self.imu = NavX()
 
         wpilib.SmartDashboard.putData("Gyro", self.imu.ahrs)
 
         # hatch objects
-        self.hatch_fingers = wpilib.DoubleSolenoid(7, 6)
-        self.hatch_punchers = wpilib.Solenoid(0)
-        self.hatch_enable_piston = wpilib.DoubleSolenoid(3, 2)
+        # self.hatch_fingers = wpilib.DoubleSolenoid(7, 6)
+        # self.hatch_punchers = wpilib.Solenoid(0)
+        # self.hatch_enable_piston = wpilib.DoubleSolenoid(3, 2)
 
         self.hatch_left_limit_switch = wpilib.DigitalInput(8)
         self.hatch_right_limit_switch = wpilib.DigitalInput(9)
 
-        self.climber_front_motor = rev.CANSparkMax(10, rev.MotorType.kBrushless)
-        self.climber_back_motor = rev.CANSparkMax(11, rev.MotorType.kBrushless)
-        self.climber_front_podium_switch = wpilib.DigitalInput(4)
-        self.climber_back_podium_switch = wpilib.DigitalInput(5)
-        self.climber_drive_motor = ctre.TalonSRX(20)
-        self.climber_pistons = wpilib.DoubleSolenoid(forwardChannel=4, reverseChannel=5)
+        # self.climber_front_motor = rev.CANSparkMax(10, rev.MotorType.kBrushless)
+        # self.climber_back_motor = rev.CANSparkMax(11, rev.MotorType.kBrushless)
+        # self.climber_front_podium_switch = wpilib.DigitalInput(4)
+        # self.climber_back_podium_switch = wpilib.DigitalInput(5)
+        # self.climber_drive_motor = ctre.TalonSRX(20)
+        # self.climber_pistons = wpilib.DoubleSolenoid(forwardChannel=4, reverseChannel=5)
 
         # cargo related objects
-        self.intake_motor = ctre.VictorSPX(9)
+        # self.intake_motor = ctre.VictorSPX(9)
         self.intake_switch = wpilib.DigitalInput(0)
-        self.arm_motor = rev.CANSparkMax(2, rev.MotorType.kBrushless)
+        # self.arm_motor = rev.CANSparkMax(2, rev.MotorType.kBrushless)
 
         # boilerplate setup for the joystick
         self.joystick = wpilib.Joystick(0)
@@ -136,13 +137,13 @@ class Robot(magicbot.MagicRobot):
 
     def disabledPeriodic(self):
         self.chassis.set_inputs(0, 0, 0)
-        self.vision.execute()  # Keep the time offset calcs running
+        # self.vision.execute()  # Keep the time offset calcs running
 
     def teleopInit(self):
         """Initialise driver control."""
         self.chassis.set_inputs(0, 0, 0)
-        self.hatch_intake.alignment_speed = 0.5
-        self.hatch_deposit.alignment_speed = 0.5
+        # self.hatch_intake.alignment_speed = 0.5
+        # self.hatch_deposit.alignment_speed = 0.5
         self.chassis.derate_drive_modules(9)
 
     def teleopPeriodic(self):
@@ -166,10 +167,10 @@ class Robot(magicbot.MagicRobot):
         joystick_hat = self.joystick.getPOV()
 
         # Allow big stick movements from the driver to break out of an automation
-        if abs(joystick_vx) > 0.5 or abs(joystick_vy) > 0.5:
-            self.hatch_intake.done()
-            self.hatch_deposit.done()
-            self.cargo_deposit.done()
+        # if abs(joystick_vx) > 0.5 or abs(joystick_vy) > 0.5:
+        #     self.hatch_intake.done()
+        #     self.hatch_deposit.done()
+        #     self.cargo_deposit.done()
 
         if not self.chassis.automation_running:
             if joystick_vx or joystick_vy or joystick_vz:
@@ -194,36 +195,36 @@ class Robot(magicbot.MagicRobot):
         # Starts Hatch Alignment and Cargo State Machines
         if (
             self.joystick.getTrigger()
-            or self.gamepad.getTriggerAxis(self.gamepad.Hand.kLeft) > 0.5
-            or self.gamepad.getTriggerAxis(self.gamepad.Hand.kRight) > 0.5
+            or self.gamepad.getTriggerAxis(self.gamepad.Hand.kLeftHand) > 0.5
+            or self.gamepad.getTriggerAxis(self.gamepad.Hand.kRightHand) > 0.5
         ):
             angle = FieldAngle.closest(self.imu.getAngle())
             self.logger.info("closest field angle: %s", angle)
-            if self.cargo_component.has_cargo:
-                self.cargo_deposit.engage()
-            else:
-                if angle is FieldAngle.LOADING_STATION:
-                    self.hatch_intake.engage()
-                else:
-                    self.hatch_deposit.engage()
+            # if self.cargo_component.has_cargo:
+            #     self.cargo_deposit.engage()
+            # else:
+            #     if angle is FieldAngle.LOADING_STATION:
+            #         self.hatch_intake.engage()
+            #     else:
+            #         self.hatch_deposit.engage()
             self.chassis.set_heading_sp(angle.value)
 
         # Hatch Manual Outake/Intake
-        if self.joystick.getRawButtonPressed(5) or self.gamepad.getBumperPressed(6):
-            angle = FieldAngle.closest(self.imu.getAngle())
-            self.logger.info("closest field angle: %s", angle)
-            if angle is not FieldAngle.LOADING_STATION:
-                self.hatch_automation.outake()
-            else:
-                self.hatch_automation.grab()
+        # if self.joystick.getRawButtonPressed(5) or self.gamepad.getBumperPressed(6):
+            # angle = FieldAngle.closest(self.imu.getAngle())
+            # self.logger.info("closest field angle: %s", angle)
+            # if angle is not FieldAngle.LOADING_STATION:
+            #     self.hatch_automation.outake()
+            # else:
+            #     self.hatch_automation.grab()
 
-        if self.gamepad.getXButtonPressed():
-            self.hatch.retract_fingers()
-            self.hatch.retract()
+        # if self.gamepad.getXButtonPressed():
+        #     self.hatch.retract_fingers()
+        #     self.hatch.retract()
 
         # Stops Cargo Intake Motor
-        if self.gamepad.getBButtonPressed():
-            self.cargo.outake_cargo_ship(force=True)
+        # if self.gamepad.getBButtonPressed():
+        #     self.cargo.outake_cargo_ship(force=True)
 
         # Toggles the Heading Hold
         if self.joystick.getRawButtonPressed(8):
@@ -238,23 +239,23 @@ class Robot(magicbot.MagicRobot):
             self.chassis.set_heading_sp(0)
 
         # Start Button starts Climb State Machine
-        if self.gamepad.getStartButtonPressed() and self.gamepad.getRawButtonPressed(5):
-            self.climb_automation.start_climb_lv3()
+        # if self.gamepad.getStartButtonPressed() and self.gamepad.getRawButtonPressed(5):
+        #     self.climb_automation.start_climb_lv3()
 
         # Back Button Ends Climb State Machine
-        if self.gamepad.getBackButtonPressed():
-            if self.gamepad.getRawButtonPressed(5):
-                self.climb_automation.abort()
-            else:
-                self.climb_automation.done()
+        # if self.gamepad.getBackButtonPressed():
+        #     if self.gamepad.getRawButtonPressed(5):
+        #         self.climb_automation.abort()
+        #     else:
+        #         self.climb_automation.done()
 
         # Cargo Floor Intake
-        if self.gamepad.getAButtonPressed():
-            self.cargo.intake_floor(force=True)
+        # if self.gamepad.getAButtonPressed():
+        #     self.cargo.intake_floor(force=True)
 
         # Cargo Loading Station Intake
         if self.gamepad.getYButtonPressed():
-            self.cargo.intake_loading(force=True)
+            # self.cargo.intake_loading(force=True)
             self.chassis.set_heading_sp(
                 FieldAngle.CARGO_FRONT.value
             )  # Reversed side of robot
@@ -262,8 +263,8 @@ class Robot(magicbot.MagicRobot):
         if self.gamepad.getPOV() != -1:
             speed = 0.65
             azimuth = math.radians(-self.gamepad.getPOV())
-            if self.cargo_component.has_cargo:
-                azimuth += math.pi
+            # if self.cargo_component.has_cargo:
+            #     azimuth += math.pi
             self.chassis.set_inputs(
                 speed * math.cos(azimuth),
                 speed * math.sin(azimuth),
@@ -276,7 +277,7 @@ class Robot(magicbot.MagicRobot):
         wpilib.SmartDashboard.updateValues()
 
     def testPeriodic(self):
-        self.vision.execute()  # Keep the time offset calcs running
+        # self.vision.execute()  # Keep the time offset calcs running
 
         joystick_vx = -rescale_js(
             self.joystick.getY(), deadzone=0.1, exponential=1.5, rate=0.5
@@ -308,9 +309,9 @@ class Robot(magicbot.MagicRobot):
                     ctre.ControlMode.Position, module.steer_enc_offset
                 )
 
-        if self.gamepad.getStartButton():
-            self.climber.retract_all()
-            self.climber.execute()
+        # if self.gamepad.getStartButton():
+        #     self.climber.retract_all()
+        #     self.climber.execute()
 
         if self.gamepad.getPOV() != -1:
             speed = 0.1
@@ -322,8 +323,8 @@ class Robot(magicbot.MagicRobot):
                     absolute_rotation=True,
                 )
 
-        if self.gamepad.getTriggerAxis(self.gamepad.Hand.kLeft) > 0.5:
-            self.hatch_enable_piston.set(wpilib.DoubleSolenoid.Value.kReverse)
+        # if self.gamepad.getTriggerAxis(self.gamepad.Hand.kLeft) > 0.5:
+        #     self.hatch_enable_piston.set(wpilib.DoubleSolenoid.Value.kReverse)
 
 
 if __name__ == "__main__":

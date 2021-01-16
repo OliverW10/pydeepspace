@@ -45,10 +45,10 @@ class SwerveModule:
         reverse_drive_direction: bool = False,
         reverse_drive_encoder: bool = False,
     ):
-        if hal.isSimulation():
-            # we aren't using the PID simulation here
-            steer_talon._use_notifier = False
-            drive_talon._use_notifier = False
+        # if hal.isSimulation():
+        #     # we aren't using the PID simulation here
+        #     steer_talon._use_notifier = False
+        #     drive_talon._use_notifier = False
 
         self.name = name
 
@@ -63,7 +63,7 @@ class SwerveModule:
         self.reverse_drive_direction = reverse_drive_direction
         self.reverse_drive_encoder = reverse_drive_encoder
 
-        self.steer_enc_offset = self.steer_motor.configGetCustomParam(0, timoutMs=10)
+        self.steer_enc_offset = self.steer_motor.configGetCustomParam(0, timeoutMs=10)
 
         self.nt = NetworkTables.getTable("SwerveDrive").getSubTable(name)
         self.steer_enc_offset_entry = self.nt.getEntry("steer_enc_offset")
@@ -119,7 +119,7 @@ class SwerveModule:
         self.drive_motor.config_kI(0, 0, 10)
         self.drive_motor.config_kD(0, 0, 10)
         self.drive_motor.config_kF(0, 1024.0 / self.DRIVE_FREE_SPEED, 10)
-        self.drive_motor.configClosedLoopRamp(0.45, 10)
+        self.drive_motor.configClosedloopRamp(0.45, 10)
         self.drive_motor.selectProfileSlot(0, 0)
 
         self.drive_motor.setNeutralMode(ctre.NeutralMode.Brake)
@@ -133,7 +133,10 @@ class SwerveModule:
         self.drive_motor.enableCurrentLimit(True)
         self.drive_motor.enableVoltageCompensation(True)
 
-    def nt_offset_changed(self, entry, key: str, value: float, flags: int):
+    # XXX robotpy/pyntcore#26
+    # def nt_offset_changed(self, entry, key: str, value: float, flags: int):
+    def nt_offset_changed(self, event):
+        value = event.value.value()
         value = int(value)
         self.steer_enc_offset = value
         self.steer_motor.configSetCustomParam(value, 0, timeoutMs=10)

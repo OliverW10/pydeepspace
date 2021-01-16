@@ -4,7 +4,7 @@ from typing import Tuple
 
 import numpy as np
 from magicbot import tunable
-from wpilib_controller import PIDController
+from wpilib.controller import PIDController
 
 from utilities.navx import NavX
 from .module import SwerveModule
@@ -16,8 +16,8 @@ class SwerveChassis:
 
     imu: NavX
     module_a: SwerveModule
-    module_b: SwerveModule
-    module_c: SwerveModule
+    # module_b: SwerveModule
+    # module_c: SwerveModule
     module_d: SwerveModule
 
     # tunables here purely for debugging
@@ -45,13 +45,14 @@ class SwerveChassis:
             Kp=1.5,
             Ki=0.01,
             Kd=0.03,
-            measurement_source=self.imu.getAngle,
             period=1 / 50,
         )  # this gain is being changed depending on speed
-        self.heading_pid.setInputRange(-math.pi, math.pi)
-        self.heading_pid.setOutputRange(-3, 3)
-        self.heading_pid.setContinuous()
-        self.modules = [self.module_a, self.module_b, self.module_c, self.module_d]
+        self.heading_pid.enableContinuousInput(-math.pi, math.pi)
+        # self.heading_pid.setInputRange(-math.pi, math.pi)
+        # self.heading_pid.setOutputRange(-3, 3)
+        # self.heading_pid.setContinuous()
+
+        self.modules = [self.module_a, self.module_d]
 
         self.odometry_x = 0
         self.odometry_y = 0
@@ -61,10 +62,6 @@ class SwerveChassis:
 
         self.A = np.array(
             [
-                [1, 0, 1],
-                [0, 1, 1],
-                [1, 0, 1],
-                [0, 1, 1],
                 [1, 0, 1],
                 [0, 1, 1],
                 [1, 0, 1],
@@ -91,7 +88,7 @@ class SwerveChassis:
         self.set_heading_sp(self.imu.getAngle())
 
     def set_heading_sp(self, setpoint):
-        self.heading_pid.setReference(setpoint)
+        self.heading_pid.setSetpoint(setpoint)
 
     def heading_hold_on(self):
         self.set_heading_sp_current()
@@ -114,8 +111,10 @@ class SwerveChassis:
     def execute(self):
 
         pid_z = 0
+        angle = self.imu.getAngle()
         if self.hold_heading:
-            pid_z = self.heading_pid.update()
+            pid_z = self.heading_pid.calculate(angle)
+            pid_z = min(max(pid_z, -3), 3)
             if self.momentum and abs(self.imu.getHeadingRate()) < 0.005:
                 self.momentum = False
 
@@ -132,8 +131,6 @@ class SwerveChassis:
         if abs(pid_z) < 0.1 and math.hypot(self.vx, self.vy) < 0.01:
             pid_z = 0
         vz = input_vz + pid_z
-
-        angle = self.imu.getAngle()
 
         # TODO: re-enable if we end up not using callback method
         self.update_odometry()
@@ -161,8 +158,8 @@ class SwerveChassis:
         #     return
         heading = self.imu.getAngle()
 
-        odometry_outputs = np.zeros((8, 1))
-        velocity_outputs = np.zeros((8, 1))
+        odometry_outputs = np.zeros((4, 1))
+        velocity_outputs = np.zeros((4, 1))
 
         # betas = []
         # phi_dots = []
